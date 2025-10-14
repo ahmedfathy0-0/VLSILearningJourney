@@ -39,20 +39,15 @@ module debouncer #(
 
     reg [1:0] state, next_state;
     reg [2:0] counter;
-    reg clean_pulse_reg;
 
 
     always @(posedge clk or posedge reset) begin
-        if (reset) begin
+        if (reset)
             counter <= 0;
-            clean_pulse_reg <= 0;
-        end else begin
-            if (state == DEBOUNCE) begin
-                counter <= counter + 1;
-            end else begin
-                counter <= 0;
-            end
-        end
+        else if (state == DEBOUNCE)
+            counter <= counter + 1;
+        else
+            counter <= 0;
     end
 
     always @(*) begin
@@ -74,7 +69,11 @@ module debouncer #(
                 end
             end
             PRESSED: begin
-                next_state = PRESSED;
+                if (!noisy_button) begin
+                    next_state = DEBOUNCE;
+                end else begin
+                    next_state = IDLE;
+                end
             end
         endcase
     end
@@ -87,26 +86,7 @@ module debouncer #(
         end
     end
 
-
-    // always @(*) begin
-    //     clean_pulse_reg = 0;
-    //     if (state == PRESSED && counter == 0) begin
-    //         clean_pulse_reg = 1;
-    //     end
-    // end
-
-    always @(*) begin
-
-        if (state == PRESSED) begin
-            next_state <= IDLE;
-            clean_pulse_reg <= 1;
-        end else begin
-            clean_pulse_reg <= 0;
-        end
-
-    end
-
-    assign clean_pulse = clean_pulse_reg;
+    assign clean_pulse = (state == PRESSED && !noisy_button);
 
 endmodule
 

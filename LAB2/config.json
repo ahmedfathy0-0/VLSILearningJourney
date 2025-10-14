@@ -1,0 +1,12 @@
+{
+  "meta": {
+    "version": 2,
+    "flow": [
+      "Yosys.Synthesis"
+    ]
+  },
+  "DESIGN_NAME": "debouncer",
+  "VERILOG_FILES": "dir::src/debouncer.v",
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 10.0
+}

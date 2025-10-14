@@ -35,9 +35,9 @@ module debouncer #(
     //
     // 5. Implement the output logic to generate a single-cycle pulse.
 
-    localparam IDLE = 2'b00, DEBOUNCE = 2'b01, PRESSED = 2'b10;
+    localparam IDLE = 2'b00, DEBOUNCE = 2'b01;
 
-    reg [1:0] state, next_state;
+    reg state, next_state;
     reg [2:0] counter;
 
 
@@ -45,48 +45,33 @@ module debouncer #(
         if (reset)
             counter <= 0;
         else if (state == DEBOUNCE)
-            counter <= counter + 1;
+            if(counter == DEBOUNCE_CYCLES)
+                counter <= 0; // Hold the counter value
+            else
+                counter <= counter + 1;
         else
             counter <= 0;
     end
 
     always @(*) begin
         case (state)
-            IDLE: begin
-                if (!noisy_button) begin
+            IDLE:
+                if (!noisy_button)
                     next_state = DEBOUNCE;
-                end else begin
+            DEBOUNCE:
+                if(noisy_button)
                     next_state = IDLE;
-                end
-            end
-            DEBOUNCE: begin
-                if(noisy_button) begin
-                    next_state = IDLE;
-                end else if (counter == DEBOUNCE_CYCLES-1) begin
-                    next_state = PRESSED;
-                end else begin
-                    next_state = DEBOUNCE;
-                end
-            end
-            PRESSED: begin
-                if (!noisy_button) begin
-                    next_state = DEBOUNCE;
-                end else begin
-                    next_state = IDLE;
-                end
-            end
         endcase
     end
 
     always @(posedge clk or posedge reset) begin
-        if (reset) begin
+        if (reset)
             state <= IDLE;
-        end else begin
+        else
             state <= next_state;
-        end
     end
 
-    assign clean_pulse = (state == PRESSED && !noisy_button);
+    assign clean_pulse = (counter == DEBOUNCE_CYCLES && !noisy_button);
 
 endmodule
 

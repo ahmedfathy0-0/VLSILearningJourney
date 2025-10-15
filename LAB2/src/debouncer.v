@@ -86,7 +86,20 @@ module debouncer #(
         end
     end
 
-    assign clean_pulse = (state == PRESSED && !noisy_button);
+
+    reg clean_pulse_reg;
+
+
+    always @(posedge clk or posedge reset or reset) begin
+        if (reset) begin
+            clean_pulse_reg <= 0;
+        end else if (state == PRESSED && !noisy_button) begin
+            clean_pulse_reg <= 1;
+        end else begin
+            clean_pulse_reg <= 0;
+        end
+    end
+    assign clean_pulse = clean_pulse_reg;
 
 endmodule
 

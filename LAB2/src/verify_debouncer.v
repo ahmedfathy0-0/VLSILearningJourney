@@ -88,7 +88,7 @@ module verify_debouncer;
         #(CLK_PERIOD * DEBOUNCE_CYCLES); // Wait for debounce to complete
         // The clean_pulse should go high on the next clock edge.
         // We will interrupt it half a cycle later.
-        #(CLK_PERIOD/2);
+        #((CLK_PERIOD+2)/2);
         reset <= 1; // Assert reset, immediately killing the pulse
         #(CLK_PERIOD * 2);
         reset <= 0;

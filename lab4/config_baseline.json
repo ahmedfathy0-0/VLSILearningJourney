@@ -3,5 +3,7 @@
   "VERILOG_FILES": ["dir::src/matrix_vector_multiplier_baseline.v"],
   "CLOCK_PORT": "clk",
   "CLOCK_PERIOD": 25,
-  "SYNTH_PARAMETERS": "N=3 WIDTH=8"
+  "SYNTH_PARAMETERS": "N=3 WIDTH=32",
+  "FP_SIZING": "relative",
+  "FP_CORE_UTIL": 30
 }

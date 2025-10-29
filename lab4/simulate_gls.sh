@@ -2,8 +2,8 @@
 
 # --- Configuration ---
 TESTBENCH_FILE="src/matrix_vector_multiplier_synth_tb.v"
-RUN_TAG=ans # Your run tag
-USERNAME=psycho # Your username
+RUN_TAG=opt_N3_W8 # Your run tag
+USERNAME=ahmedfathy0-0 # Your username
 PDK_VERSION="0fe599b2afb6708d281543108caf8310912f54af" # The specific PDK version hash
 
 # --- Paths ---

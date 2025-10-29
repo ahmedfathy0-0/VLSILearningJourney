@@ -92,8 +92,7 @@ module matrix_vector_multiplier_opt_tb;
     ena <= 1'b0;
 
     // Wait for both designs to assert done
-    @(posedge done_opt or posedge done_baseline);
-	@(posedge done_opt or posedge done_baseline);
+    wait(done_baseline && done_opt);
     @(posedge clk);
 
     // Compare results (bit-accurate)

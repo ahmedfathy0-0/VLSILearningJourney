@@ -1,7 +1,7 @@
 {
     "DESIGN_NAME": "dot_product",
     "VERILOG_FILES": [
-        "dir::src/dot_product_sequential.v"
+        "dir::src/dot_product_stream.v"
     ],
     "CLOCK_PORT": "clk",
     "CLOCK_PERIOD": 20.0,

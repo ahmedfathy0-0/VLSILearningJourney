@@ -3,8 +3,8 @@
 module dot_product_stream_tb;
 
     // --- Configuration ---
-    parameter WIDTH = 8;
-    parameter N     = 4; // Testing a 4-element vector
+    localparam WIDTH = 8;
+    localparam N     = 4; // Testing a 4-element vector
 
     // --- Signals ---
     reg clk;
@@ -16,19 +16,18 @@ module dot_product_stream_tb;
     wire [(2*WIDTH + $clog2(N)) - 1 : 0] result;
     wire output_valid;
 
-    // --- Instantiate the DUT ---
-    dot_product #(
-        .WIDTH(WIDTH),
-        .N(N)
-    ) dut (
-        .clk(clk),
-        .rst_n(rst_n),
-        .input_valid(input_valid),
-        .A_vec(A_vec),
-        .B_vec(B_vec),
-        .result(result),
-        .output_valid(output_valid)
-    );
+        dot_product_stream #(
+            .WIDTH(WIDTH),
+            .N(N)
+        ) dut (
+            .clk(clk),
+            .rst_n(rst_n),
+            .input_valid(input_valid),
+            .A_vec(A_vec),
+            .B_vec(B_vec),
+            .result(result),
+            .output_valid(output_valid)
+        );
 
     // --- Clock Generation (10ns period) ---
     always #5 clk = ~clk;

@@ -1,5 +1,5 @@
 {
-    "DESIGN_NAME": "dot_product",
+    "DESIGN_NAME": "dot_product_stream",
     "VERILOG_FILES": [
         "dir::src/dot_product_stream.v"
     ],

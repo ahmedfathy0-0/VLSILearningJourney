@@ -23,7 +23,7 @@ module dot_product_tb;
     wire output_valid;
 
     // --- Instantiate the DUT ---
-    dot_product #(
+    dot_product_sequential #(
         .WIDTH(WIDTH),
         .N(N)
     ) uut (

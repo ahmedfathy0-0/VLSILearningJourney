@@ -158,77 +158,109 @@ The critical path is broken at the pipeline boundary:
 
 **Key Advantage:** Pipeline registers act as "timing barriers" that prevent long combinational delay chains from forming, enabling each stage to run faster.
 
-### Single Vector Latency
+---
 
-**Cycle Requirements:**
+#### **Single Vector Latency**
 
-- **Sequential:** N cycles = 4 cycles
-- **Pipelined:** N + Depth cycles = 4 + 2 = 6 cycles
+**Formula:** T_latency = (Cycles per Vector) × T_min
 
-**Latency Calculations:**
-
-#### Sequential:
+**Sequential Design:**
 
 ```
-T_latency_seq = 4 cycles × 12.362 ns/cycle
-T_latency_seq = 49.448 ns
+
+Cycles needed = N = 4 cycles
+
+T_latency_seq = 4 × 12.362 ns = 49.448 ns
+
 ```
 
-#### Pipelined:
+**Pipelined Design:**
 
 ```
-T_latency_pipe = 6 cycles × 9.396 ns/cycle
-T_latency_pipe = 56.376 ns
+
+Cycles needed = N + Pipeline_Depth = 4 + 2 = 6 cycles
+
+(N cycles to stream in data + 2 cycles for pipeline drain)
+
+
+T_latency_pipe = 6 × 9.396 ns = 56.376 ns
+
 ```
 
 **Percentage Difference:**
 
 ```
-% Difference = (T_latency_seq - T_latency_pipe) / T_latency_seq × 100
-% Difference = (49.448 - 56.376) / 49.448 × 100
-% Difference = -14.01%
-```
 
-**Result:** The pipelined design has **14% higher latency** for a single vector (slower by 6.93 ns).
-
-**Interpretation:** Pipelining introduces additional latency due to pipeline depth, making it slower for processing a single isolated vector.
-
-### Throughput Scale (1,000 Vectors)
-
-**Continuous Processing Time:**
-
-#### Sequential (No Overlapping):
+% Difference = (49.448 - 56.376) / 49.448 × 100 = -14.0%
 
 ```
-Total cycles = 1000 vectors × 4 cycles/vector = 4000 cycles
+
+**⚠️ Result: Pipelined is 14% SLOWER for a single vector!**
+
+This is the classic **latency penalty** of pipelining—the first result takes longer due to pipeline fill time.
+
+---
+
+#### **Throughput at Scale (1000 Vectors)**
+
+This is where pipelining shows its true advantage!
+
+**Sequential Design (Batch Processing):**
+
+```
+
+Must complete each vector before starting the next
+
+Cycles = 1000 vectors × 4 cycles/vector = 4000 cycles
+
 T_total_seq = 4000 × 12.362 ns = 49,448 ns = 49.448 µs
-```
-
-#### Pipelined (Overlapping Execution):
 
 ```
-Initial fill: 6 cycles for first result
-Subsequent: 1 new result per cycle (streaming throughput)
-Total cycles = 6 + (1000 - 1) × 1 = 1005 cycles
-T_total_pipe = 1005 × 9.396 ns = 9,443 ns = 9.443 µs
+
+**Pipelined Design (Streaming):**
+
+```
+
+After initial fill (6 cycles for first result):
+
+- Every N cycles produces one new result
+
+- Cycles = 6 + (1000-1) × 4 = 6 + 3996 = 4002 cycles
+
+
+T_total_pipe = 4002 × 9.396 ns = 37,603 ns = 37.603 µs
+
 ```
 
 **Speedup Calculation:**
 
 ```
-Speedup = T_total_seq / T_total_pipe
-Speedup = 49,448 / 9,443
-Speedup = 5.24×
+
+Speedup = T_seq / T_pipe = 49.448 / 37.603 = 1.315×
+
 ```
 
-**Throughput Comparison:**
-
-- **Sequential:** 1000 / 49.448 µs = **20.22 Mvectors/sec**
-- **Pipelined:** 1000 / 9.443 µs = **105.90 Mvectors/sec**
-
-**Conclusion:** For large workloads, the pipelined design achieves a **5.24× speedup** and **5.24× higher throughput**. The benefit is **highly significant** for continuous streaming applications, despite the initial latency penalty.
+**✅ Result: Pipelined achieves 31.5% speedup (1.315× faster)**
 
 ---
+
+#### **Why Only 1.315× Speedup?**
+
+The speedup comes from **TWO factors**:
+
+1.**Higher Clock Frequency:**
+
+- Pipelined runs at 106.43 MHz vs Sequential at 80.89 MHz
+- Frequency advantage: 106.43/80.89 = 1.315×
+
+2.**Throughput Efficiency:**
+
+- Sequential: 1 result per 4 cycles = 25% efficiency
+- Pipelined: 1 result per 4 cycles (after fill) = 25% efficiency
+
+-**Same throughput efficiency!**
+
+**Key Insight:** This pipelined design streams **within** each vector (element-by-element), not vector-by-vector. So it doesn't achieve the ideal "1 result per cycle" that inter-vector pipelining would provide.
 
 ## 3. Log Analysis (Warnings)
 

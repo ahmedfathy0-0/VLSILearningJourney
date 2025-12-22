@@ -1,0 +1,23 @@
+{
+    "DESIGN_NAME": "traffic_light",
+    "VERILOG_FILES": ["dir::src/traffic_light.v"],
+    "CLOCK_PERIOD": 5.0,
+    "CLOCK_PORT": "clk",
+    "PDK": "sky130A",
+    "STD_CELL_LIBRARY": "sky130_fd_sc_hd",
+    "CLOCK_CONSTRAINT_FILE": "dir::src/traffic_light.sdc",
+    "PNR_SDC_FILE": "dir::src/traffic_light.sdc",
+    "SIGNOFF_SDC_FILE": "dir::src/traffic_light.sdc",
+    
+    "SYNTH_STRATEGY": "DELAY 0",
+    "SYNTH_FLATTEN": 1,
+    "SYNTH_SIZING": 1,
+    "SYNTH_BUFFERING": true,
+    "SYNTH_MAX_FANOUT": 10,
+
+    "FP_CORE_UTIL": 30,
+    "QUIT_ON_TIMING_VIOLATIONS": 0,
+    "PL_RESIZER_DESIGN_OPTIMIZATIONS": true,
+    "PL_RESIZER_TIMING_OPTIMIZATIONS": true,
+    "GLB_RESIZER_TIMING_OPTIMIZATIONS": true
+}

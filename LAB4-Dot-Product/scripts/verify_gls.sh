@@ -8,7 +8,7 @@ PDK_VERSION="0fe599b2afb6708d281543108caf8310912f54af" # The specific PDK versio
 
 # --- Paths ---
 RTL_FILE="src/dot_product_stream.v"
-NETLIST_FILE="runs/${RUN_TAG}/12-yosys-synthesis/dot_product_stream.nl.v"
+NETLIST_FILE="runs/${RUN_TAG}/06-yosys-synthesis/dot_product_stream.nl.v"
 FINAL_NL_FILE="runs/${RUN_TAG}/final/nl/dot_product_stream.nl.v"
 PDK_ROOT="/home/${USERNAME}/.volare/volare/sky130/versions/${PDK_VERSION}"
 STD_CELL_VERILOG="${PDK_ROOT}/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v"

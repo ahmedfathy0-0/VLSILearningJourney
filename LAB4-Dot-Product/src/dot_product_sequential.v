@@ -1,4 +1,4 @@
-module dot_product #(
+module dot_product_sequential #(
     parameter WIDTH  = 8,  // Bit width of a single element
     parameter N = 4   // Number of elements in the vector
 )(

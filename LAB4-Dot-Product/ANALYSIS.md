@@ -195,9 +195,7 @@ T_latency_pipe = 6 × 9.396 ns = 56.376 ns
 
 ```
 
-**⚠️ Result: Pipelined is 14% SLOWER for a single vector!**
-
-This is the classic **latency penalty** of pipelining—the first result takes longer due to pipeline fill time.
+**n h bg fx**This is the classic **latency penalty** of pipelining—the first result takes longer due to pipeline fill time.
 
 ---
 
@@ -411,7 +409,7 @@ Based on `max_ss_100C_1v60`, the chip would **fail under these conditions:**
   - High computational load (temperature spike)
   - End-of-life (aging effects worsen timing)
 
-#### **Configuration Fix (Without RTL Changes):**
+#### **]Configuration Fix (Without RTL Changes):**
 
 **Recommended Change in `config.json`:**
 

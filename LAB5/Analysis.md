@@ -216,46 +216,6 @@ From `traffic_light.sdc`:
 
 ---
 
-### Timing Slack Correlation
-
-**Static Timing Analysis (STA) Results from run_final:**
-
-| Metric                                        | Value               | Meaning                            |
-| --------------------------------------------- | ------------------- | ---------------------------------- |
-| **Setup Slack** (`timing__setup__ws`) | **+1.593 ns** | Time margin before next clock edge |
-| **Hold Slack** (`timing__hold__ws`)   | **+0.334 ns** | Time margin after clock edge       |
-
-**Relationship Between Slack and Measured Delays:**
-
-The setup slack formula is:
-
-```
-Setup Slack = T_clk - T_clk_to_Q - T_comb - T_setup - T_output_delay
-```
-
-Working backwards from our measurements:
-
-- Clock period: 4.2 ns
-- Measured clock-to-output delay: ~0.8 ns (includes clk-to-Q + combinational logic)
-- Output delay constraint: 1.0 ns
-- Setup time of destination flip-flop: ~0.1 ns (typical)
-
-```
-Expected Slack ≈ 4.2 - 0.8 - 1.0 - 0.1 = 2.3 ns
-Actual Slack = 1.593 ns
-```
-
-> [!IMPORTANT]
-> The actual slack (1.593 ns) is slightly less than our simplified calculation (2.3 ns) because:
->
-> - STA considers the **worst-case path**, not average paths
-> - Input delays (1.0 ns) also consume timing budget
-> - Clock uncertainty (0.2 ns) adds margin
-
-**Verification:** The positive slack confirms our simulation is correct—the ~0.8 ns output delay leaves sufficient margin for the design to meet timing at this corner.
-
----
-
 ### Glitch Analysis
 
 ![Output Glitch During Transition](screanshots/output_glitch.png)

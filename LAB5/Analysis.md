@@ -57,9 +57,11 @@ T_logic = 4.2 ns - 1.0 ns - 1.0 ns = 2.2 ns
 
 **Worst Setup Slack from Fail Run:**
 
-| Metric                                    | Value                                     |
-| ----------------------------------------- | ----------------------------------------- |
-| `timing__setup__ws` (Worst Setup Slack) | **[INSERT VALUE FROM FAIL RUN]** ns |
+| Metric                                    | Value                              |
+| ----------------------------------------- | ---------------------------------- |
+| `timing__setup__ws` (Worst Setup Slack) | **-0.22854208061795903 ns** |
+
+1. -0.22854208061795903
 
 **How much faster did the logic need to be?**
 
@@ -102,8 +104,7 @@ _Analysis of results from the Success Run (Step 3)_
 
 **Yes**
 
-
-****Why does achieving faster timing result in larger chip area?****
+\***\*Why does achieving faster timing result in larger chip area?\*\***
 
 1. **Larger Transistors:** Fast cells use larger transistors to drive higher currents (High Drive Strength), which physically occupy more silicon area.
 2. **Buffer Insertion:** The tool inserts additional buffers to:
@@ -213,6 +214,16 @@ From `traffic_light.sdc`:
 - Available time: `4.2 - 1.0 (input) - 1.0 (output) = 2.2 ns`
 
 ✅ **Yes, the delays match the constraints.** Both measured delays (~0.8 ns) are well within the 2.2 ns budget.
+
+---
+
+### Baseline RTL Simulation (For Comparison)
+
+The following waveform shows the **ideal RTL simulation** without gate delays:
+
+![Baseline RTL Waveform](screanshots/basline.png)
+
+In the RTL simulation, all output signals change **instantaneously** at the clock edge with zero propagation delay. This serves as the reference for comparing post-synthesis behavior.
 
 ---
 

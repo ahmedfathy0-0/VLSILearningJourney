@@ -93,16 +93,17 @@ _Analysis of results from the Success Run (Step 3)_
 
 **Area Comparison (`design__instance__area`):**
 
-| Run         | Configuration                 | Design Area (µm²)                 |
-| ----------- | ----------------------------- | ----------------------------------- |
-| Fail Run    | `SYNTH_STRATEGY: "AREA 0"`  | **[INSERT FAIL RUN AREA]**    |
-| Success Run | `SYNTH_STRATEGY: "DELAY 0"` | **[INSERT SUCCESS RUN AREA]** |
+| Run         | Configuration                 | Design Area (µm²) |
+| ----------- | ----------------------------- | ------------------- |
+| Fail Run    | `SYNTH_STRATEGY: "AREA 0"`  | 1091.05             |
+| Success Run | `SYNTH_STRATEGY: "DELAY 0"` | 1513.95             |
 
 **Did the area increase?**
 
-[YES/NO - Fill in based on your metrics]
+**Yes**
 
-**Why does achieving faster timing result in larger chip area?**
+
+****Why does achieving faster timing result in larger chip area?****
 
 1. **Larger Transistors:** Fast cells use larger transistors to drive higher currents (High Drive Strength), which physically occupy more silicon area.
 2. **Buffer Insertion:** The tool inserts additional buffers to:
@@ -170,5 +171,122 @@ The following table documents each optimization attempt, showing the progression
 
 1. **Single optimizations are not enough**: `DELAY 0` alone didn't fix timing—multiple settings needed.
 2. **Setup margin is critical**: The `PL_RESIZER_SETUP_SLACK_MARGIN: 0.2` was key to accounting for routing delays.
-3. **Lower utilization helps**: Reducing `FP_CORE_UTIL` to 30% gave the router more flexibility.
-4. **Aggressive settings can backfire**: Some combinations (heavy flattening + sizing) increased complexity without improving timing.
+3. **Aggressive settings doesn't always work**: Some combinations (heavy flattening + sizing) increased complexity without improving timing.
+
+---
+
+## 4. Post-Synthesis Verification
+
+_Gate-Level Simulation with SDF Back-Annotation_
+
+### Simulation Setup
+
+Post-synthesis simulation was performed using:
+
+- **Netlist:** `runs/run_final/final/nl/traffic_light.nl.v`
+- **SDF File:** `runs/run_final/final/sdf/nom_tt_025C_1v80/traffic_light__nom_tt_025C_1v80.sdf`
+- **Corner:** Nominal (tt, 25°C, 1.80V)
+
+---
+
+### Visualizing Delays
+
+The following waveform shows the transition of the light outputs after a clock rising edge:
+
+![Output Signal Delays](screanshots/outputs_shifted.png)
+
+---
+
+### Delay Measurements
+
+| Signal                                   | Clock-to-Output Delay |
+| ---------------------------------------- | --------------------- |
+| **Green Light** (`light_ns[2]`)  | **0.797 ns**    |
+| **Yellow Light** (`light_ns[1]`) | **0.804 ns**    |
+
+**Does this delay match the constraints?**
+
+From `traffic_light.sdc`:
+
+- Output delay constraint: 1.0 ns
+- Clock period: 4.2 ns
+- Available time: `4.2 - 1.0 (input) - 1.0 (output) = 2.2 ns`
+
+✅ **Yes, the delays match the constraints.** Both measured delays (~0.8 ns) are well within the 2.2 ns budget.
+
+---
+
+### Timing Slack Correlation
+
+**Static Timing Analysis (STA) Results from run_final:**
+
+| Metric                                        | Value               | Meaning                            |
+| --------------------------------------------- | ------------------- | ---------------------------------- |
+| **Setup Slack** (`timing__setup__ws`) | **+1.593 ns** | Time margin before next clock edge |
+| **Hold Slack** (`timing__hold__ws`)   | **+0.334 ns** | Time margin after clock edge       |
+
+**Relationship Between Slack and Measured Delays:**
+
+The setup slack formula is:
+
+```
+Setup Slack = T_clk - T_clk_to_Q - T_comb - T_setup - T_output_delay
+```
+
+Working backwards from our measurements:
+
+- Clock period: 4.2 ns
+- Measured clock-to-output delay: ~0.8 ns (includes clk-to-Q + combinational logic)
+- Output delay constraint: 1.0 ns
+- Setup time of destination flip-flop: ~0.1 ns (typical)
+
+```
+Expected Slack ≈ 4.2 - 0.8 - 1.0 - 0.1 = 2.3 ns
+Actual Slack = 1.593 ns
+```
+
+> [!IMPORTANT]
+> The actual slack (1.593 ns) is slightly less than our simplified calculation (2.3 ns) because:
+>
+> - STA considers the **worst-case path**, not average paths
+> - Input delays (1.0 ns) also consume timing budget
+> - Clock uncertainty (0.2 ns) adds margin
+
+**Verification:** The positive slack confirms our simulation is correct—the ~0.8 ns output delay leaves sufficient margin for the design to meet timing at this corner.
+
+---
+
+### Glitch Analysis
+
+![Output Glitch During Transition](screanshots/output_glitch.png)
+
+**Observation:** A glitch (hazard) is visible in the post-synthesis waveform.
+
+**Cause:** The green and yellow outputs have **different propagation delays** (0.797 ns vs 0.804 ns). During the brief 7 ps window when one signal has changed but the other hasn't, an intermediate state exists that wasn't present in the RTL simulation.
+
+| Timing     | Green         | Yellow        | Red | Visible State     |
+| ---------- | ------------- | ------------- | --- | ----------------- |
+| T + 0 ps   | OLD           | OLD           | OLD | Previous state    |
+| T + 797 ps | **NEW** | OLD           | OLD | **Glitch!** |
+| T + 804 ps | NEW           | **NEW** | NEW | Final state       |
+
+**Why this happens:**
+
+1. In **RTL simulation**, all signals change instantaneously (zero delay)
+2. In **post-synthesis simulation**, each path through the logic has different delays
+3. The 7 ps difference creates a brief "race condition" between signals
+
+> [!NOTE]
+> This glitch is harmless in synchronous designs because:
+>
+> - The outputs are only sampled by downstream flip-flops at clock edges
+> - By the next clock edge (4.2 ns later), all signals have settled
+> - The glitch duration (7 ps) is far shorter than the clock period
+
+---
+
+### Input to Output Delay
+
+![Input Signal Propagation](screanshots/shifting_input_north.png)
+
+The waveform above shows the propagation delay from input changes through the combinational logic to the output registers.
